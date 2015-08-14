@@ -16,8 +16,10 @@ libraryDependencies ++= {
     "io.spray"            %%  "spray-testkit" % sprayV  % "test",
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
-    "org.specs2"          %%  "specs2-core"   % "2.3.11" % "test"
+    "org.specs2"          %%  "specs2-core"   % "2.3.11" % "test",
     // "org.specs2"          %%  "specs2-core"   % "2.3.7" % "test"
+    "joda-time" % "joda-time" % "2.8.1",
+    "org.joda" % "joda-convert" % "1.7"
   )
 }
 
