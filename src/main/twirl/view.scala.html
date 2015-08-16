@@ -1,0 +1,72 @@
+@(meta_refresh: String, contents: String)
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>ClassCat&reg; Prism for HIDS (derived from OSSEC Web Interface)</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="shortcut icon" href="css/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" media="all"  href="css/cal.css" title="css/cal.css" />
+    <script type="text/javascript" src="js/calendar.js"></script>
+    <script type="text/javascript" src="js/calendar-en.js"></script>
+    <script type="text/javascript" src="js/calendar-setup.js"></script>
+    <script type="text/javascript" src="js/prototype.js"></script>
+    <script type="text/javascript" src="js/hide.js"></script>
+    <link rel="stylesheet" rev="stylesheet"   href="css/css.css" type="text/css" />
+    @Html(meta_refresh)
+</head>
+
+<body>
+    <br/>
+    <!-- OSSEC UI header -->
+
+    <div id="header">
+        <div id="headertitle">
+            <table style="background:orange;" width="100%" cellspacing=0 cellpadding=0>
+                <tr>
+                    <td><div style="color:royalblue;font-size:24pt;font-weight:bold;font-family:'Times New Roman'">&nbsp;&nbsp;ClassCat&reg; <span style="font-style:italic;">NSM</span></div>
+                    <td width="405px"><img src="ccimg/cc_logo_with_softlayer.png"/>
+                </tr>
+            </table>
+        </div>
+
+        <ul id="nav">
+            <li><a href="main" title="Main">メイン</a></li>
+            <!--
+            <li><a href="search" title="Search events">Alert 検索</a></li>
+            <li><a href="syscheck" title="Integrity checking">整合性チェック</a></li>
+            <li><a href="stats" title="Stats">統計情報</a></li>
+            -->
+            <li><a href="help" title="Help">About</a></li>
+            <li><a href="logout" title="Logout"><span style="color:#999">ログアウト</span></a></li>
+        </ul>
+    </div> <!-- -header -->
+
+    <!-- END OF HEADER -->
+
+    <div id="container">
+        <div id="content_box">
+            <div id="content" class="pages">
+                <a name="top"></a>
+
+                <!-- BEGIN: content -->
+
+@Html(contents)
+
+                <!-- END: content -->
+
+                <br /><br />
+                <br /><br />
+            </div> <!-- content -->
+        </div> <!-- content_box -->
+
+        <!-- OSSEC UI footer -->
+
+        <div id="footer">
+            <p class="center">Copyright &copy; 2015 <a href="http://www.classcat.com"><font color="red"><b>ClassCat Co.,Ltd.</b></font></a>. All rights reserved</p>
+        </div>
+
+        <!-- END of FOOTER -->
+
+    </div> <!-- conatiner -->
+</body>
+</html>

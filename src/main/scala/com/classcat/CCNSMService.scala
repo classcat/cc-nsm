@@ -13,13 +13,15 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 
+import com.classcat.ccnsm.{DataMain, ViewMain}
+
 class MyConf {
     val ip = "192.168.0.50"
 }
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class MyServiceActor extends Actor with defaultService with MyService {
+class CCNSMServiceActor extends Actor with defaultService with MyService {
     println("In MyServiceActor\n")
 
   // the HttpService trait defines only one abstract member, which
@@ -42,11 +44,44 @@ trait defaultService extends HttpService {
 
 
     val defaultRoute =
+        pathSingleSlash {
+            redirect("/main", StatusCodes.Found)
+        } ~
+        pathPrefix("ccimg") {
+            getFromResourceDirectory("ccimg")
+        }~
+        pathPrefix("css") {
+            getFromResourceDirectory("css")
+        }~
+        pathPrefix("img") {
+            getFromResourceDirectory("img")
+        }~
+        pathPrefix("js") {
+            getFromResourceDirectory("js")
+        }~
+        path("main") {
+            get {
+                respondWithMediaType(`text/html`) {
+                    complete {
+                        val data_capsule = new DataMain(sc)
+                        val rdd_tcp_incoming = data_capsule.getRddTcpIncoming
+                        val rdd_tcp_outgoing = data_capsule.getRddTcpOutgoing
+
+                        val view = new ViewMain(rdd_tcp_incoming, rdd_tcp_outgoing)
+                        val buffer = view.getHtml
+
+                        val meta_refresh = """<meta http-equiv="refresh" content="90" />"""
+                        html.view.render(meta_refresh, buffer).body
+                    }
+                }
+            }
+        } ~
       path("") {
           // val lines = sc.textFile("file:///usr/local/bro/logs/current/conn.log")
           // lines.collect.foreach(println)
 
         get {
+
           respondWithMediaType(`text/html`) { // XML is marshalled to `text/xml` by default, so we simply override here
               print ("にゃにゃう")
             complete {
