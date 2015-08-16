@@ -13,11 +13,12 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 
-import com.classcat.ccnsm.{DataMain, ViewMain}
+//import com.classcat.ccnsm.
+import com.classcat.ccnsm.{DataMain, ViewMain, DataMain2}
 
-class MyConf {
+/* class MyConf {
     val ip = "192.168.0.50"
-}
+} */
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -37,8 +38,6 @@ class CCNSMServiceActor extends Actor with defaultService with MyService {
 
 // this trait defines our service behavior independently from the service actor
 trait defaultService extends HttpService {
-    println("gaugau")
-    val a = "uriuri"
     val conf = new SparkConf().setMaster("local").setAppName("cc-nsm")
     val sc = new SparkContext(conf)
 
@@ -64,13 +63,36 @@ trait defaultService extends HttpService {
                 respondWithMediaType(`text/html`) {
                     complete {
                         val data_capsule = new DataMain(sc)
+
+                        val (is_error, msg_error) = data_capsule.isError
+
                         val rdd_tcp_incoming = data_capsule.getRddTcpIncoming
                         val rdd_tcp_outgoing = data_capsule.getRddTcpOutgoing
+                        val rdd_tcp_others  = data_capsule.getRddTcpOthers
 
-                        val view = new ViewMain(rdd_tcp_incoming, rdd_tcp_outgoing)
+                        val view = new ViewMain(is_error, msg_error, rdd_tcp_incoming, rdd_tcp_outgoing, rdd_tcp_others)
+
                         val buffer = view.getHtml
 
                         val meta_refresh = """<meta http-equiv="refresh" content="90" />"""
+                        html.view.render(meta_refresh, buffer).body
+                    }
+                }
+            }
+        } ~
+        path("main2") {
+            get {
+                respondWithMediaType(`text/html`) {
+                    complete {
+                        val data_capsule = new DataMain2(sc)
+                        // val rdd_tcp_incoming = data_capsule.getRddTcpIncoming
+                        // val rdd_tcp_outgoing = data_capsule.getRddTcpOutgoing
+
+                        // val view = new ViewMain(rdd_tcp_incoming, rdd_tcp_outgoing)
+                        // val buffer = view.getHtml
+
+                        val meta_refresh = """<meta http-equiv="refresh" content="90" />"""
+                        val buffer = "under construction"
                         html.view.render(meta_refresh, buffer).body
                     }
                 }
