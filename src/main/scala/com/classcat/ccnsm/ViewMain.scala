@@ -17,7 +17,9 @@ class ViewMain (is_error : Boolean, msg_error : String,
                                 rdd_tcp_outgoing : RDD[Array[String]] ,
                                 rdd_tcp_others: RDD[Array[String]],
                                 rdd_tcp_incoming_group_by_orig_h: RDD[(String, Int)],
-                                rdd_tcp_outgoing_group_by_resp_h : RDD[(String, Int)]
+                                rdd_tcp_outgoing_group_by_resp_h : RDD[(String, Int)],
+                                rdd_tcp_incoming_group_by_resp_p : RDD[(String, Int)],
+                                rdd_tcp_outgoing_group_by_resp_p : RDD[(String, Int)]
                                 ) {
     private var buffer : String = ""
 
@@ -60,6 +62,14 @@ class ViewMain (is_error : Boolean, msg_error : String,
         buffer += "<br/>"
 
         buffer += tcp_outgoing_group_by_resp_h
+
+        buffer += "<br/>"
+
+        buffer += tcp_incoming_group_by_resp_p
+
+        buffer += "<br/>"
+
+        buffer += tcp_outgoing_group_by_resp_p
 
         buffer += """</table>"""
     }
@@ -240,6 +250,63 @@ class ViewMain (is_error : Boolean, msg_error : String,
 
         return lbuffer
     }
+
+    def tcp_incoming_group_by_resp_p : String = {
+        var lbuffer : String = ""
+
+        val rdd_with_index = rdd_tcp_incoming_group_by_resp_p.zipWithIndex
+
+        lbuffer += "<table>"
+        lbuffer += "<caption><b>TCP 接続 (Incoming) 接続先ポート上位</b></caption>"
+        lbuffer += "<tr><th><th>ポート<th>総数"
+
+        rdd_with_index.take(10).foreach(
+            x =>
+            {
+                val tpl = x._1
+                val index = x._2
+                // val ip = tpl._1
+
+                lbuffer += "<tr>"
+                lbuffer += "<td>" + (index+1).toString
+                lbuffer += "<td>" + tpl._1
+                lbuffer += "<td>" + tpl._2
+            }
+        )
+
+        lbuffer += "</table>"
+
+        return lbuffer
+    }
+
+    def tcp_outgoing_group_by_resp_p : String = {
+        var lbuffer : String = ""
+
+        val rdd_with_index = rdd_tcp_outgoing_group_by_resp_p.zipWithIndex
+
+        lbuffer += "<table>"
+        lbuffer += "<caption><b>TCP 接続 (Outgoing) 接続先ポート上位</b></caption>"
+        lbuffer += "<tr><th><th>ポート<th>総数"
+
+        rdd_with_index.take(10).foreach(
+            x =>
+            {
+                val tpl = x._1
+                val index = x._2
+                // val ip = tpl._1
+
+                lbuffer += "<tr>"
+                lbuffer += "<td>" + (index+1).toString
+                lbuffer += "<td>" + tpl._1
+                lbuffer += "<td>" + tpl._2
+            }
+        )
+
+        lbuffer += "</table>"
+
+        return lbuffer
+    }
+
 
 
     def getHtml : String = {
