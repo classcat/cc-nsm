@@ -27,6 +27,9 @@ class DataMain (sc : org.apache.spark.SparkContext) {
     private var rdd_tcp_outgoing : RDD[Array[String]] = _
     private var rdd_tcp_others : RDD[Array[String]] = _
 
+    private var rdd_tcp_incoming_group_by_orig_h : RDD[(String, Int)] = _
+    private var rdd_tcp_outgoing_group_by_resp_h : RDD[(String, Int)] = _
+
     try {
         val row_data = sc.textFile("file:///usr/local/bro/logs/current/conn.log").cache()
 
@@ -49,7 +52,10 @@ class DataMain (sc : org.apache.spark.SparkContext) {
             }
         ) */
 
-        val rdd_tcp_outgoing_group_by_resp_h = rdd_tcp_outgoing.groupBy({ x => x(4)}).map( x => {(x._1, x._2.toArray.length)})
+        rdd_tcp_incoming_group_by_orig_h = rdd_tcp_incoming.groupBy({ x => x(2)}).map( x => {(x._1, x._2.toArray.length)}).sortBy( { x => x._2 }, false)
+
+
+        rdd_tcp_outgoing_group_by_resp_h = rdd_tcp_outgoing.groupBy({ x => x(4)}).map( x => {(x._1, x._2.toArray.length)}).sortBy( { x => x._2 }, false)
         /* rdd_tcp_outgoing_group_by_resp_h.collect.foreach(
             x =>
             {
@@ -57,14 +63,14 @@ class DataMain (sc : org.apache.spark.SparkContext) {
                 println(x._2)
             }
         ) */
-        val rdd_tmp = rdd_tcp_outgoing_group_by_resp_h.sortBy( { x => x._2 }, false)
-        rdd_tmp.collect.foreach(
+        // val rdd_tmp = rdd_tcp_outgoing_group_by_resp_h.sortBy( { x => x._2 }, false)
+        /* rdd_tcp_outgoing_group_by_resp_h.collect.foreach(
             x =>
             {
                 println(x._1)
                 println(x._2)
             }
-        )
+        ) */
 
     } catch {
         case e:Exception => {
@@ -77,15 +83,24 @@ class DataMain (sc : org.apache.spark.SparkContext) {
         return (is_error, msg_error)
     }
 
-    def getRddTcpOutgoing () : RDD[Array[String]] = {
-        return rdd_tcp_outgoing
-    }
-
     def getRddTcpIncoming () : RDD[Array[String]] = {
         return rdd_tcp_incoming
+    }
+
+    def getRddTcpOutgoing () : RDD[Array[String]] = {
+        return rdd_tcp_outgoing
     }
 
     def getRddTcpOthers () : RDD[Array[String]] = {
         return rdd_tcp_others
     }
+
+    def getRddTcpIncomingGroupByOrigH () : RDD[(String, Int)] = {
+        return rdd_tcp_incoming_group_by_orig_h
+    }
+
+    def getRddTcpOutgoingGroupByRespH () : RDD[(String, Int)] = {
+        return rdd_tcp_outgoing_group_by_resp_h
+    }
+
 }

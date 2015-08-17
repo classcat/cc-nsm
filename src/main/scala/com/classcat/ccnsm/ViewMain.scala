@@ -10,10 +10,14 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 
+import java.net.InetAddress
+
 class ViewMain (is_error : Boolean, msg_error : String,
                                 rdd_tcp_incoming : RDD[Array[String]],
                                 rdd_tcp_outgoing : RDD[Array[String]] ,
-                                rdd_tcp_others: RDD[Array[String]]
+                                rdd_tcp_others: RDD[Array[String]],
+                                rdd_tcp_incoming_group_by_orig_h: RDD[(String, Int)],
+                                rdd_tcp_outgoing_group_by_resp_h : RDD[(String, Int)]
                                 ) {
     private var buffer : String = ""
 
@@ -37,7 +41,7 @@ class ViewMain (is_error : Boolean, msg_error : String,
 
     def tcp = {
         buffer += """<table>"""
-        buffer += """<tr><td width="50%">"""
+        buffer += """<tr><td width="50%" valign="top">"""
 
         buffer += tcp_incoming_latest
 
@@ -49,9 +53,13 @@ class ViewMain (is_error : Boolean, msg_error : String,
 
         buffer += tcp_others_latest
 
-        buffer += """<td width="50%">"""
+        buffer += """<td width="50%" valign="top">"""
 
-        // buffer += "right pane"
+        buffer += tcp_incoming_group_by_orig_h
+
+        buffer += "<br/>"
+
+        buffer += tcp_outgoing_group_by_resp_h
 
         buffer += """</table>"""
     }
@@ -171,6 +179,67 @@ class ViewMain (is_error : Boolean, msg_error : String,
         return lbuffer
     }
 
+    def tcp_incoming_group_by_orig_h : String = {
+        var lbuffer : String = ""
+
+        val rdd_with_index = rdd_tcp_incoming_group_by_orig_h.zipWithIndex
+
+        lbuffer += "<table>"
+        lbuffer += "<caption><b>TCP 接続 (Incoming) 接続元上位</b></caption>"
+        lbuffer += "<tr><th><th>接続元<th>ホスト名<th>総数"
+
+        rdd_with_index.take(10).foreach(
+            x =>
+            {
+                val tpl = x._1
+                val index = x._2
+
+                val ip = tpl._1
+                val hostname = InetAddress.getByName(ip).getHostName();
+                lbuffer += "<tr>"
+                lbuffer += "<td>" + (index+1).toString
+                lbuffer += "<td>" + tpl._1
+                lbuffer += "<td>" + hostname
+                lbuffer += "<td>" + tpl._2
+            }
+        )
+
+        lbuffer += "</table>"
+
+        return lbuffer
+    }
+
+
+    def tcp_outgoing_group_by_resp_h : String = {
+        var lbuffer : String = ""
+
+        val rdd_with_index = rdd_tcp_outgoing_group_by_resp_h.zipWithIndex
+
+        lbuffer += "<table>"
+        lbuffer += "<caption><b>TCP 接続 (Outgoing) 接続先上位</b></caption>"
+        lbuffer += "<tr><th><th>接続先<th>ホスト名<th>総数"
+
+        rdd_with_index.take(10).foreach(
+            x =>
+            {
+                val tpl = x._1
+                val index = x._2
+
+                val ip = tpl._1
+                val hostname = InetAddress.getByName(ip).getHostName();
+
+                lbuffer += "<tr>"
+                lbuffer += "<td>" + (index+1).toString
+                lbuffer += "<td>" + tpl._1
+                lbuffer += "<td>" + hostname
+                lbuffer += "<td>" + tpl._2
+            }
+        )
+
+        lbuffer += "</table>"
+
+        return lbuffer
+    }
 
 
     def getHtml : String = {

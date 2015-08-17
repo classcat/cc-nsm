@@ -70,7 +70,14 @@ trait defaultService extends HttpService {
                         val rdd_tcp_outgoing = data_capsule.getRddTcpOutgoing
                         val rdd_tcp_others  = data_capsule.getRddTcpOthers
 
-                        val view = new ViewMain(is_error, msg_error, rdd_tcp_incoming, rdd_tcp_outgoing, rdd_tcp_others)
+                        var rdd_tcp_incoming_group_by_orig_h = data_capsule.getRddTcpIncomingGroupByOrigH
+                        var rdd_tcp_outgoing_group_by_resp_h = data_capsule.getRddTcpOutgoingGroupByRespH
+
+                        val view = new ViewMain(is_error, msg_error,
+                            rdd_tcp_incoming, rdd_tcp_outgoing, rdd_tcp_others,
+                            rdd_tcp_incoming_group_by_orig_h,
+                            rdd_tcp_outgoing_group_by_resp_h
+                            )
 
                         val buffer = view.getHtml
 
