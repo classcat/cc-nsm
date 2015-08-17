@@ -23,8 +23,8 @@ class DataMain (sc : org.apache.spark.SparkContext) {
     private var is_error = false
     private var msg_error = ""
 
-    private var rdd_tcp_outgoing : RDD[Array[String]] = _  // null
-    private var rdd_tcp_incoming : RDD[Array[String]] = _
+    private var rdd_tcp_incoming : RDD[Array[String]] = _ // null
+    private var rdd_tcp_outgoing : RDD[Array[String]] = _
     private var rdd_tcp_others : RDD[Array[String]] = _
 
     try {
@@ -34,11 +34,37 @@ class DataMain (sc : org.apache.spark.SparkContext) {
 
         val dataset_tcp = dataset.filter(_(6) == "tcp").sortBy( { x => x(0) }, false)
 
-        rdd_tcp_outgoing = dataset_tcp.filter( { x => val myconf = new MyConf(); x(2) == myconf.ip } )
-
         rdd_tcp_incoming = dataset_tcp.filter( { x => val myconf = new MyConf(); x(4) == myconf.ip } )
 
+        rdd_tcp_outgoing = dataset_tcp.filter( { x => val myconf = new MyConf(); x(2) == myconf.ip } )
+
         rdd_tcp_others = dataset_tcp.filter( { x => val myconf = new MyConf(); (x(2) != myconf.ip) && (x(4) != myconf.ip) } )
+
+        /*
+        rdd_tcp_outgoing.groupBy({x => x(4)}).collect.foreach(
+            x =>
+            {
+                println(x._1)
+                println(x._2.toArray.length)
+            }
+        ) */
+
+        val rdd_tcp_outgoing_group_by_resp_h = rdd_tcp_outgoing.groupBy({ x => x(4)}).map( x => {(x._1, x._2.toArray.length)})
+        /* rdd_tcp_outgoing_group_by_resp_h.collect.foreach(
+            x =>
+            {
+                println(x._1)
+                println(x._2)
+            }
+        ) */
+        val rdd_tmp = rdd_tcp_outgoing_group_by_resp_h.sortBy( { x => x._2 }, false)
+        rdd_tmp.collect.foreach(
+            x =>
+            {
+                println(x._1)
+                println(x._2)
+            }
+        )
 
     } catch {
         case e:Exception => {
